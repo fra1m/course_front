@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { UserState, RegisterPayload } from './types';
+import type { UserState, UserPayload } from './types';
 import { registerUser, loginUser, logoutUser, checkAuth } from './userThunks';
 import { Role } from './types';
 
@@ -34,7 +34,7 @@ const userSlice = createSlice({
 			})
 			.addCase(
 				registerUser.fulfilled,
-				(state, action: PayloadAction<RegisterPayload>) => {
+				(state, action: PayloadAction<UserPayload>) => {
 					state.isLoading = false;
 					state.email = action.payload.user.email;
 					state.name = action.payload.user.name;
@@ -54,7 +54,7 @@ const userSlice = createSlice({
 			})
 			.addCase(
 				loginUser.fulfilled,
-				(state, action: PayloadAction<RegisterPayload>) => {
+				(state, action: PayloadAction<UserPayload>) => {
 					state.isLoading = false;
 					state.email = action.payload.user.email;
 					state.name = action.payload.user.name;
@@ -77,7 +77,8 @@ const userSlice = createSlice({
 			})
 			.addCase(
 				checkAuth.fulfilled,
-				(state, action: PayloadAction<RegisterPayload>) => {
+				(state, action: PayloadAction<UserPayload>) => {
+					console.log(action.payload);
 					state.isLoading = false;
 					state.email = action.payload.user.email;
 					state.name = action.payload.user.name;

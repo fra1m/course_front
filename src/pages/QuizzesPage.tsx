@@ -25,8 +25,8 @@ const { Title } = Typography;
 const { Content } = Layout;
 // TODO: мб надо survey.startTimer() и  survey.stopTimer();
 
-export const QuizPage: FC = () => {
-	const quizzes = useAppSelector(state => state.quiz.surveyJson);
+export const QuizzesPage: FC = () => {
+	const quizzes = useAppSelector(state => state.quiz.quizzes);
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
@@ -55,7 +55,7 @@ export const QuizPage: FC = () => {
 		return (
 			<Layout className='min-h-screen'>
 				<Content className='flex justify-center items-center'>
-					{/* <Spin tip='Загрузка тестов...' size='large' fullscreen /> */}
+					<Spin tip='Загрузка тестов...' size='large' fullscreen />
 				</Content>
 			</Layout>
 		);
@@ -101,7 +101,10 @@ export const QuizPage: FC = () => {
 											>
 												<div
 													className='cursor-pointer'
-													onClick={() => setSelectedQuizIndex(idx)}
+													onClick={() => {
+														setSelectedQuizIndex(idx);
+														console.log('Selected quiz:', quiz.id);
+													}}
 												>
 													<Title
 														level={4}
@@ -132,7 +135,7 @@ export const QuizPage: FC = () => {
 															await dispatch(deleteQuiz(quiz)).unwrap(); // TODO: чтобы не перенагружать сервер, добавить возврат всех оставшихся квизов ??????
 															dispatch(getAllQuizzes());
 
-															// navigate(RouteNames.QUIZ);
+															// navigate(RouteNames.QUIZZES);
 														}}
 														className='bg-white text-red-600 border-none hover:bg-red-100'
 													>

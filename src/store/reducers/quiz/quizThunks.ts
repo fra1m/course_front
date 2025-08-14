@@ -3,6 +3,7 @@ import api from '../../../api';
 import type { RootState } from '../rootReducer';
 import type { ErrorTypeAuth } from '../errorTypes';
 import type { QuizState } from './types';
+import type { IQuiz } from '../../../models/IQuiz';
 
 export const saveQuiz = createAsyncThunk<
 	void, // что возвращает при успехе
@@ -100,7 +101,39 @@ export const updateQuiz = createAsyncThunk<
 
 export const deleteQuiz = createAsyncThunk<
 	void, // что возвращает при успехе
-	QuizState, // аргумент
+	IQuiz, // аргумент
+	{ rejectValue: ErrorTypeAuth } // если будет ошибка
+>('quiz/delete', async (_, { getState, rejectWithValue }) => {
+	const state = getState() as RootState;
+	const quizData = state.quiz;
+	const accessToken = state.user.accessToken;
+	console.log(quizData.id);
+
+	try {
+		const res = await api.delete('/quiz/delete', {
+			data: { id: quizData.id },
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+		});
+
+		return res.data;
+	} catch (error) {
+		const err = error as { response?: { data: ErrorTypeAuth } };
+		console.error('Ошибка при удалении теста', err.response?.data);
+
+		return rejectWithValue(
+			err.response?.data || {
+				message: 'Ошибка при удалении теста',
+				statusCode: 500,
+			}
+		);
+	}
+});
+
+export const getQuizById = createAsyncThunk<
+	void, // что возвращает при успехе
+	{ id: IQuiz['id'] }, // аргумент
 	{ rejectValue: ErrorTypeAuth } // если будет ошибка
 >('quiz/delete', async (_, { getState, rejectWithValue }) => {
 	const state = getState() as RootState;

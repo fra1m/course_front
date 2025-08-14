@@ -9,7 +9,6 @@ import { useAppDispatch, useAppSelector } from './hooks/hooks';
 import { useEffect } from 'react';
 import { checkAuth } from './store/reducers/user/userThunks';
 
-// import { QuizPage } from './pages/QuizPage';
 
 const App = () => {
 	const dispatch = useAppDispatch();

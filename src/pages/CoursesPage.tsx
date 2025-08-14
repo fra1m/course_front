@@ -1,85 +1,60 @@
-//TODO: сделать логику страницы + pdf
-//TODO: сделать страницу формы для урока
-
-import { useState, type FC } from 'react';
-import { Layout, Menu, Button, Card, Collapse, message, Col } from 'antd';
+import { useEffect, useMemo, useState, type FC } from 'react';
+import {
+	Layout,
+	Menu,
+	Button,
+	Card,
+	message,
+	Col,
+	Typography,
+	Space,
+	List,
+	Row,
+	Tooltip,
+} from 'antd';
 import {
 	MenuFoldOutlined,
 	MenuUnfoldOutlined,
 	PlayCircleOutlined,
 	FileTextOutlined,
 } from '@ant-design/icons';
-import { useAppDispatch } from '../hooks/hooks';
-import { getHTML } from '../store/reducers/lessons/lessonsThunks';
+import { useAppDispatch, useAppSelector } from '../hooks/hooks';
+import { getAllLessons } from '../store/reducers/lessons/lessonsThunks';
+import { loadMock } from '../store/reducers/courses/courseReducer';
+import { useNavigate } from 'react-router-dom';
+import { RouteNames } from '../routes';
+import { getAllQuizzes } from '../store/reducers/quiz/quizThunks';
 
 const { Sider, Content } = Layout;
-const { Panel } = Collapse;
-
-// Типы
-interface Section {
-	id: string;
-	title: string;
-	lessons: string[];
-	tests: string[];
-}
-
-interface Course {
-	id: string;
-	title: string;
-	description: string;
-	lessons: Section[];
-}
-
-// Заглушки
-const mockCourses: Course[] = [
-	{
-		id: '1',
-		title: 'Курс по JavaScript',
-		description: 'Основы языка JavaScript от переменных до замыканий.',
-		lessons: [
-			{
-				id: 's1',
-				title: 'Введение',
-				lessons: ['Что такое JS', 'Переменные'],
-				tests: ['Тест 1'],
-			},
-			{
-				id: 's2',
-				title: 'Функции',
-				lessons: ['Функции', 'Стрелочные функции'],
-				tests: ['Тест 2'],
-			},
-		],
-	},
-	{
-		id: '2',
-		title: 'Курс по React',
-		description: 'React с нуля: компоненты, хуки, маршрутизация.',
-		lessons: [
-			{
-				id: 's3',
-				title: 'Основы React',
-				lessons: ['JSX', 'useState'],
-				tests: ['Тест по основам'],
-			},
-		],
-	},
-];
+const { Text } = Typography;
 
 export const CoursesPage: FC = () => {
 	const dispatch = useAppDispatch();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		dispatch(loadMock()); // курсы (временно моки)
+		dispatch(getAllQuizzes());
+		dispatch(getAllLessons()); // уроки (в них уже есть testId)
+	}, [dispatch]);
+
+	const courses = useAppSelector(s => s.course.courses);
+	const lessons = useAppSelector(s => s.lesson.lessons);
 
 	const [collapsed, setCollapsed] = useState(false);
 	const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
 
-	const selectedCourse = mockCourses.find(c => c.id === selectedCourseId);
+	const selectedCourse = useMemo(
+		() => courses?.find(c => String(c.id) === String(selectedCourseId)),
+		[courses, selectedCourseId]
+	);
 
 	return (
 		<Layout className='h-screen'>
 			<Sider
 				collapsible
 				collapsed={collapsed}
-				onCollapse={value => setCollapsed(value)}
+				onCollapse={setCollapsed}
 				className='bg-white shadow'
 				width={250}
 			>
@@ -91,13 +66,14 @@ export const CoursesPage: FC = () => {
 						onClick={() => setCollapsed(!collapsed)}
 					/>
 				</div>
+
 				<Menu
 					mode='inline'
 					selectedKeys={selectedCourseId ? [selectedCourseId] : []}
-					onClick={({ key }) => setSelectedCourseId(key)}
-					items={mockCourses.map(course => ({
-						key: course.id,
-						label: course.title,
+					onClick={({ key }) => setSelectedCourseId(String(key))}
+					items={(courses ?? []).map(c => ({
+						key: String(c.id),
+						label: c.title,
 					}))}
 				/>
 			</Sider>
@@ -123,48 +99,110 @@ export const CoursesPage: FC = () => {
 								<Col>{selectedCourse.description}</Col>
 							</Card>
 
-							<Card title={selectedCourse.title} className='mb-6'>
-								<Col>{selectedCourse.description}</Col>
-							</Card>
+							<List
+								dataSource={lessons ?? []}
+								grid={{ gutter: 12, xs: 1, sm: 1, md: 1, lg: 1 }}
+								renderItem={lesson => (
+									<List.Item key={lesson.id}>
+										<Card
+											size='small'
+											className='rounded-xl shadow-sm hover:shadow-md transition-shadow'
+											styles={{ body: { padding: 12 } }}
+										>
+											<Row gutter={12} align='stretch' wrap={false}>
+												{/* Урок */}
+												<Col flex='1 1 260px'>
+													<Card
+														size='small'
+														className='rounded-lg bg-blue-50'
+														title={
+															<Text type='secondary' className='text-xs'>
+																Урок
+															</Text>
+														}
+														styles={{ body: { padding: 12 } }}
+														style={{ height: '100%' }}
+													>
+														<Space
+															direction='vertical'
+															size={6}
+															className='w-full'
+														>
+															<Tooltip
+																title={`Открыть урок`}
+																placement='top'
+																arrow
+																trigger={['hover', 'focus']}
+																styles={{ root: { whiteSpace: 'nowrap' } }}
+															>
+																<span className='inline-block'>
+																	<Button
+																		icon={<PlayCircleOutlined />}
+																		onClick={() =>
+																			navigate(`/lessons/${lesson.id}`)
+																		}
+																	>
+																		{lesson.title || `Урок #${lesson.id}`}
+																	</Button>
+																</span>
+															</Tooltip>
 
-							<Collapse accordion>
-								{selectedCourse.lessons.map(section => (
-									<Panel header={section.title} key={section.id}>
-										<div className='mb-4'>
-											<h4 className='font-semibold'>Уроки:</h4>
-											<div className='flex flex-wrap gap-2 mt-2'>
-												{section.lessons.map((lesson, idx) => (
-													<Button
-														key={idx}
-														icon={<PlayCircleOutlined />}
-														onClick={() => {
-															dispatch(getHTML());
-															message.info(`Открыт урок: ${lesson}`);
-														}}
+															{lesson.pages && (
+																<Text type='secondary' className='text-xs'>
+																	{lesson.pages.startWith}–{lesson.pages.end}{' '}
+																	стр.
+																</Text>
+															)}
+														</Space>
+													</Card>
+												</Col>
+
+												{/* Тест */}
+												<Col flex='0 0 auto'>
+													<Card
+														size='small'
+														className='rounded-lg bg-gray-50'
+														title={
+															<Text type='secondary' className='text-xs'>
+																Тест
+															</Text>
+														}
+														styles={{ body: { padding: 12 } }}
+														style={{ height: '100%', whiteSpace: 'nowrap' }}
 													>
-														{lesson}
-													</Button>
-												))}
-											</div>
-										</div>
-										<div>
-											<h4 className='font-semibold'>Тесты:</h4>
-											<div className='flex flex-wrap gap-2 mt-2'>
-												{section.tests.map((test, idx) => (
-													<Button
-														key={idx}
-														icon={<FileTextOutlined />}
-														type='dashed'
-														onClick={() => message.info(`Открыт тест: ${test}`)}
-													>
-														{test}
-													</Button>
-												))}
-											</div>
-										</div>
-									</Panel>
-								))}
-							</Collapse>
+														{typeof lesson.testId === 'number' ? (
+															<Tooltip
+																title={`Пройти тест №${lesson.testId}`}
+																placement='top'
+																arrow
+																trigger={['hover', 'focus']}
+																styles={{ root: { whiteSpace: 'nowrap' } }}
+															>
+																<span className='inline-block'>
+																	<Button
+																		size='small'
+																		type='dashed'
+																		icon={<FileTextOutlined />}
+																		onClick={() =>
+																			navigate(RouteNames.QUIZ, {
+																				state: { id: lesson.testId },
+																			})
+																		}
+																	>
+																		Пройти тест №{lesson.testId}
+																	</Button>
+																</span>
+															</Tooltip>
+														) : (
+															<Text type='secondary'>Теста нет</Text>
+														)}
+													</Card>
+												</Col>
+											</Row>
+										</Card>
+									</List.Item>
+								)}
+							/>
 						</>
 					) : (
 						<div className='text-center mt-20 text-gray-500 text-lg'>

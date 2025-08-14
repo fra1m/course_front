@@ -43,8 +43,6 @@ export const loginUser = createAsyncThunk(
 			const res = await api.post('/user/auth', data);
 			return res.data;
 		} catch (err: unknown) {
-			console.log('BAD');
-
 			if (axios.isAxiosError(err) && err.response?.data?.message) {
 				return rejectWithValue(err.response.data.message);
 			}

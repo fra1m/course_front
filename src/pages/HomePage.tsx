@@ -42,7 +42,7 @@ export const HomePage = () => {
 					<Col xs={24} sm={12} md={8}>
 						<Card
 							hoverable
-							onClick={() => navigate(RouteNames.QUIZ)}
+							onClick={() => navigate(RouteNames.QUIZZES)}
 							cover={
 								<div className='text-center text-green-600 text-6xl pt-6'>
 									🧠

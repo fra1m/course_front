@@ -7,7 +7,7 @@ import { RouteNames } from './routes';
 // import { logoutUser } from './store/reducers/userReducer';
 
 const api = axios.create({
-	baseURL: 'http://localhost:8080',
+	baseURL: import.meta.env.VITE_API_BASE, // ожидаем "/course_api"
 	withCredentials: true,
 });
 

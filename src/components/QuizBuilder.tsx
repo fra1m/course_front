@@ -58,36 +58,6 @@ export const QuizBuilder = () => {
 	const onPageTitleChange = (name: string, newTitle: string) => {
 		dispatch(updatePageTitle({ pageId: name, title: newTitle }));
 	};
-	// 	const [showPreview] = useState(false);
-
-	// const surveyModel = useMemo(() => {
-	// const surveyJson = {
-	// 	title,
-	// 	showProgressBar: 'top',
-	// 	showNavigationButtons: true,
-	// 	firstPageIsStarted: true,
-	// 	startSurveyText: 'Начать тест',
-	// 	completedHtml:
-	// 		'<h4>Спасибо за прохождение теста! Ваши ответы записаны.</h4>',
-	// 	pages: [
-	// 		{
-	// 			name: 'start',
-	// 			elements: [
-	// 				{
-	// 					type: 'html',
-	// 					name: 'startText',
-	// 					html: '<h3>Добро пожаловать! Нажмите "Начать тест", чтобы приступить.</h3>',
-	// 				},
-	// 			],
-	// 		},
-	// 		...pages, // сюда вставляются остальные страницы с вопросами
-	// 	],
-	// 	};
-	// 	const survey = new Model(surveyJson);
-	// 	survey.applyTheme(DefaultDark);
-
-	// 	return survey;
-	// }, [pages, title]);
 
 	// Изменить свойства вопроса
 	const onQuestionChange = <K extends keyof Omit<Question, 'id' | 'name'>>(
@@ -490,7 +460,7 @@ export const QuizBuilder = () => {
 								try {
 									await dispatch(updateQuiz(state)).unwrap(); // unwrap, если RTK Query или createAsyncThunk
 									message.success('Тест успешно обновлён!');
-									navigate(RouteNames.QUIZ); // переход на "Ваши тесты"
+									navigate(RouteNames.QUIZZES); // переход на "Ваши тесты"
 								} catch {
 									message.error('Ошибка при обновлении теста');
 								}
@@ -506,7 +476,7 @@ export const QuizBuilder = () => {
 								try {
 									await dispatch(saveQuiz(state)).unwrap();
 									message.success('Тест успешно сохранён!');
-									navigate(RouteNames.QUIZ); // переход на "Ваши тесты"
+									navigate(RouteNames.QUIZZES); // переход на "Ваши тесты"
 								} catch {
 									message.error('Ошибка при сохранении теста');
 								}

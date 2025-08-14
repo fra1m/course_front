@@ -1,3 +1,4 @@
+// src/components/AppRouter.tsx
 import { Route, Routes } from 'react-router-dom';
 import { privateRoutes, publickRoutes } from '../routes';
 import { RequireAuth } from './RequireAuth';
@@ -11,7 +12,7 @@ export const AppRouter = () => {
 					key={route.path}
 					path={route.path}
 					element={
-						<RequireAuth>
+						<RequireAuth allowedRoles={route.roles}>
 							<route.component />
 						</RequireAuth>
 					}

@@ -1,9 +1,11 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import type { Question } from 'survey-core';
-import type { QuizState, Page } from './types';
+import type { QuizState } from './types';
 import { deleteQuiz, getAllQuizzes, saveQuiz, updateQuiz } from './quizThunks';
 import type { ErrorTypeAuth } from '../errorTypes';
+import type { Page } from '../../../models/quiz/IPage';
+import type { IQuiz } from '../../../models/IQuiz';
 
 const initialState: QuizState = {
 	id: null,
@@ -31,6 +33,8 @@ const initialState: QuizState = {
 			},
 		],
 	},
+	quizzes: [],
+	sectionId: null,
 	isSaving: false,
 	saveError: null,
 	isLoading: false,
@@ -169,7 +173,7 @@ const quizSlice = createSlice({
 				...state.surveyJson,
 			};
 		},
-		setQuizForEdit(state, action: PayloadAction<QuizState>) {
+		setQuizForEdit(state, action: PayloadAction<IQuiz>) {
 			state.isUpdate = true;
 			state.surveyJson = {
 				...action.payload.surveyJson,
@@ -209,7 +213,13 @@ const quizSlice = createSlice({
 			})
 			.addCase(getAllQuizzes.fulfilled, (state, action) => {
 				state.isLoading = false;
-				state.surveyJson = action.payload;
+				// state.surveyJson = action.payload;
+				console.log(action.payload);
+				console.log('state.surveyJson', state.surveyJson);
+				state.saveError = null;
+
+				state.quizzes = action.payload;
+				console.log('state.quizzes', state.quizzes);
 			})
 			.addCase(getAllQuizzes.rejected, (state, action) => {
 				state.isLoading = false;
