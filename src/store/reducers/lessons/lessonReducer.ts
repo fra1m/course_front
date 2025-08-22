@@ -1,7 +1,12 @@
 //TODO: доделать редьюсер урока
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { getAllLessons, getHTML, getLessonPDFById, } from './lessonsThunks';
+import {
+	getAllLessons,
+	createLesson,
+	getLessonPDFById,
+	fetchLessonContent,
+} from './lessonsThunks';
 import type { LessonState } from './types';
 import type { ILesson, LessonPage } from '../../../models/course/ILesson';
 
@@ -11,6 +16,7 @@ const initialState: LessonState = {
 	pages: { startWith: 1, end: 1 },
 	lessons: [],
 	testId: null,
+	courseId: 0,
 	isSaving: false,
 	isLoading: false,
 	saveError: '',
@@ -29,24 +35,6 @@ const lessonSlice = createSlice({
 	name: 'lesson',
 	initialState,
 	reducers: {
-		updateLesson: (
-			state,
-			action: PayloadAction<{
-				sectionId: number;
-				data: Partial<ILesson>;
-			}>
-		) => {
-			const { sectionId, data } = action.payload;
-
-			console.log('updateLesson', state.lessons);
-
-			const section = state.lessons.find(l => l.sectionId === sectionId);
-			if (section) {
-				Object.assign(section, data);
-			}
-			console.log('updateLesson', section);
-		},
-
 		setLessonField: (
 			state,
 			action: PayloadAction<{
@@ -55,7 +43,7 @@ const lessonSlice = createSlice({
 			}>
 		) => {
 			const { key, value } = action.payload;
-			console.log('setLessonField', key, value);
+
 			if (key === 'pages' && isLessonPagePartial(value)) {
 				// обеспечим начальное значение, если pages ещё пустой
 				const current = state.pages ?? { startWith: 1, end: 1 };
@@ -85,16 +73,18 @@ const lessonSlice = createSlice({
 
 	extraReducers: builder => {
 		builder
-			.addCase(getHTML.pending, state => {
+			.addCase(createLesson.pending, state => {
 				state.isSaving = true;
 				state.saveError = '';
 			})
-			.addCase(getHTML.fulfilled, (state, action) => {
-				state.html = action.payload.html;
+			.addCase(createLesson.fulfilled, (state, action) => {
+				state.lessons.push(action.payload);
+				state.isSaving = false;
+
+				// setLessonField(action.payload);
 				state.saveError = '';
 			})
-			.addCase(getHTML.rejected, (state, action) => {
-				// state.html = action.payload;
+			.addCase(createLesson.rejected, (state, action) => {
 				if (action.payload?.message) {
 					state.saveError = action.payload.message;
 				} else {
@@ -118,21 +108,26 @@ const lessonSlice = createSlice({
 			})
 
 			.addCase(getAllLessons.fulfilled, (state, action) => {
-				state.lessons = action.payload; // храним список с contentUrl
+				state.lessons = action.payload;
+
 				state.isLoading = false;
 				state.saveError = '';
 			})
 			.addCase(getAllLessons.pending, state => {
+
+
 				state.isLoading = true;
 				state.saveError = '';
 			})
 			.addCase(getAllLessons.rejected, (state, action) => {
+
+
 				state.isLoading = false;
 				state.saveError = (action.payload as any)?.message ?? 'Ошибка';
-			})
+			});
 	},
 });
 
-export const { updateLesson, setLessonField } = lessonSlice.actions;
+export const { setLessonField } = lessonSlice.actions;
 
 export default lessonSlice.reducer;

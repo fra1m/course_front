@@ -103,7 +103,7 @@ export const QuizzesPage: FC = () => {
 													className='cursor-pointer'
 													onClick={() => {
 														setSelectedQuizIndex(idx);
-														console.log('Selected quiz:', quiz.id);
+
 													}}
 												>
 													<Title

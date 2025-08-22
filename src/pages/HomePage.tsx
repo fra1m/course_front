@@ -1,105 +1,167 @@
-import { Card, Col, Row } from 'antd';
+import {
+	Card,
+	List,
+	Empty,
+	Skeleton,
+	Col,
+	Layout,
+	Row,
+	Typography,
+	Avatar,
+} from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { useAppSelector } from '../hooks/hooks';
+import { useAppDispatch, useAppSelector } from '../hooks/hooks';
 import { RouteNames } from '../routes';
+import { useEffect, useMemo } from 'react';
+import { setSelectedCourseId } from '../store/reducers/courses/courseReducer';
+import { getAllLessons } from '../store/reducers/lessons/lessonsThunks';
+import { getAllQuizzes } from '../store/reducers/quiz/quizThunks';
+import { Content } from 'antd/es/layout/layout';
+import { BookOutlined } from '@ant-design/icons';
 
-const { Meta } = Card;
+import type { ICourse } from '../models/course/ICourse';
+import { getAllCourses } from '../store/reducers/courses/courseThunks';
+const { Title, Paragraph } = Typography;
 
 export const HomePage = () => {
-	const { isAuth, name } = useAppSelector(state => state.user);
+	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
+	useEffect(() => {
+		dispatch(getAllCourses()); // курсы
+		dispatch(getAllQuizzes()); // тесты
+		dispatch(getAllLessons()); // уроки
+	}, [dispatch]);
+
+	const { courses, isLoading } = useAppSelector(s => s.course);
+	const { isAuth, name } = useAppSelector(s => s.user);
+
+	// мемо, чтобы не дёргать ререндер без надобности
+	const data = useMemo(() => courses ?? [], [courses]);
+
+	const openCourse = (id: number) => {
+		dispatch(setSelectedCourseId(id));
+		navigate(RouteNames.COURSES);
+	};
+
 	return (
-		<div className='min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col'>
-			<main className='flex-grow max-w-5xl mx-auto px-6 py-12'>
-				<h2 className='text-4xl font-extrabold text-blue-700 mb-6'>
+		<Layout>
+			<Content className='w-full max-w-5xl mx-auto px-6 py-12'>
+				<Title
+					level={2}
+					className='!mb-2 bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent'
+				>
 					Добро пожаловать{isAuth && `, ${name}`}!
-				</h2>
-				<p className='text-gray-700 text-lg max-w-xl mb-10 leading-relaxed'>
-					Это ваша домашняя страница. Здесь можно разместить список курсов,
-					приветственное сообщение или аналитику.
-				</p>
+				</Title>
 
-				<Row gutter={[24, 24]}>
-					<Col xs={24} sm={12} md={8}>
-						<Card
-							hoverable
-							onClick={() => navigate(RouteNames.COURSES)}
-							cover={
-								<div className='text-center text-blue-600 text-6xl pt-6'>
-									📚
-								</div>
-							}
-						>
-							<Meta
-								title='Курсы'
-								description='Изучайте новые знания и развивайтесь'
-								className='text-center'
-							/>
-						</Card>
-					</Col>
+				<Paragraph className='text-gray-700 text-base max-w-[640px] !mb-10 leading-7'>
+					Это ваша домашняя страница. Ниже — все доступные курсы.
+				</Paragraph>
 
-					<Col xs={24} sm={12} md={8}>
-						<Card
-							hoverable
-							onClick={() => navigate(RouteNames.QUIZZES)}
-							cover={
-								<div className='text-center text-green-600 text-6xl pt-6'>
-									🧠
-								</div>
-							}
-						>
-							<Meta
-								title='Тесты'
-								description='Проверяйте свои знания и прогресс'
-								className='text-center'
-							/>
-						</Card>
-					</Col>
+				{isLoading && (
+					<Row gutter={[24, 24]}>
+						{Array.from({ length: 6 }).map((_, i) => (
+							<Col xs={24} sm={12} md={8} key={i}>
+								<Card className='rounded-2xl shadow-sm'>
+									<Skeleton active paragraph={{ rows: 3 }} />
+								</Card>
+							</Col>
+						))}
+					</Row>
+				)}
 
-					{/* {isAuth && ( */}
-					<Col xs={24} sm={12} md={8}>
-						<Card
-							hoverable
-							onClick={() => navigate(RouteNames.PROFILE)}
-							cover={
-								<div className='text-center text-purple-600 text-6xl pt-6'>
-									👤
-								</div>
-							}
-						>
-							<Meta
-								title='Профиль'
-								description='Управляйте аккаунтом и настройками'
-								className='text-center'
-							/>
-						</Card>
-					</Col>
+				{!isLoading && data.length === 0 && (
+					<Row justify='center' className='py-16'>
+						<Col>
+							<Empty description='Пока нет курсов' />
+						</Col>
+					</Row>
+				)}
 
-					<Col xs={24} sm={12} md={8}>
-						<Card
-							hoverable
-							onClick={() => navigate(RouteNames.LESSON)}
-							cover={
-								<div className='text-center text-purple-600 text-6xl pt-6'>
-									👤
-								</div>
-							}
-						>
-							<Meta
-								title='Урок'
-								description='Управляйте аккаунтом и настройками'
-								className='text-center'
-							/>
-						</Card>
-					</Col>
-					{/* } */}
-				</Row>
-			</main>
+				{!isLoading && data.length > 0 && (
+					<List
+						grid={{ gutter: 24, xs: 1, sm: 2, md: 3 }}
+						dataSource={data}
+						renderItem={(course: ICourse, idx: number) => {
+							const gradients = [
+								'from-rose-500/20 via-orange-400/15 to-amber-300/15',
+								'from-indigo-500/20 via-sky-400/15 to-cyan-300/15',
+								'from-emerald-500/20 via-teal-400/15 to-lime-300/15',
+							];
+							const bg = gradients[idx % gradients.length];
 
-			<footer className='bg-white border-t mt-12 py-6 text-center text-gray-500 text-sm'>
-				© 2025 Gerion Courses. Все права защищены.
-			</footer>
-		</div>
+							return (
+								<List.Item key={course.id}>
+									<Card
+										hoverable
+										onClick={() => openCourse(course.id)}
+										className='w-[300px] overflow-hidden rounded-2xl transition-shadow bg-white shadow-sm hover:shadow-xl ring-1 ring-transparent hover:ring-indigo-200'
+										styles={{ body: { padding: 16 } }}
+										cover={
+											<Row
+												align='middle'
+												justify='center'
+												className={`h-[150px] w-full border-b border-gray-100 bg-gradient-to-br ${bg}`}
+											>
+												<Col>
+													<Avatar
+														shape='circle'
+														size={72}
+														className='backdrop-blur bg-white/80 shadow-md ring-1 ring-white/60'
+														icon={
+															// яркая иконка курса
+															<BookOutlined
+																twoToneColor='#fa541c'
+																// style={{ fontSize: 36 }}
+															/>
+														}
+													/>
+												</Col>
+											</Row>
+										}
+									>
+										<Row
+											className='h-full'
+											style={{ display: 'flex', flexDirection: 'column' }}
+											gutter={[0, 8]}
+											wrap={false}
+										>
+											<Col>
+												<Title
+													level={5}
+													ellipsis={{
+														rows: 1,
+														tooltip: course.title || 'Без названия',
+													}}
+													className='!mb-1'
+												>
+													{course.title || 'Без названия'}
+												</Title>
+											</Col>
+
+											<Col>
+												<Paragraph
+													type='secondary'
+													ellipsis={{
+														rows: 2,
+														tooltip:
+															course.description || 'Описание отсутствует',
+													}}
+													className='!mb-0 text-gray-600 break-words'
+												>
+													{course.description || 'Описание отсутствует'}
+												</Paragraph>
+											</Col>
+
+											<Col flex='auto' />
+										</Row>
+									</Card>
+								</List.Item>
+							);
+						}}
+					/>
+				)}
+			</Content>
+		</Layout>
 	);
 };

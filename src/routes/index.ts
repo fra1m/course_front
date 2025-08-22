@@ -5,12 +5,11 @@ import { RegisterPage } from '../pages/RegisterPage';
 import { QuizBuilder } from '../components/QuizBuilder';
 import { QuizzesPage } from '../pages/QuizzesPage';
 import { CoursesPage } from '../pages/CoursesPage';
-import { LessonsForm } from '../components/LessonsForm';
+import LessonsForm from '../components/LessonsForm';
 import { Role } from '../store/reducers/user/types';
 import { CourseBuilder } from '../pages/CourseBuilder';
 import { QuizPage } from '../pages/QuizePage';
 import { LessonBuilder } from '../pages/LessonBuilder';
-import { LessonsPage } from '../pages/LessonsPage';
 
 export interface IRoute {
 	path: string;
@@ -111,13 +110,6 @@ export const privateRoutes: IRoute[] = [
 		component: LessonBuilder,
 		roles: [Role.TEACHER, Role.ADMIN],
 		label: 'Конструктор уроков',
-	},
-	{
-		path: RouteNames.LESSONS,
-		exact: true,
-		component: LessonsPage,
-		roles: [Role.TEACHER, Role.ADMIN],
-		label: 'Ваши уроки',
 	},
 	{
 		path: RouteNames.LESSON_VIEW,

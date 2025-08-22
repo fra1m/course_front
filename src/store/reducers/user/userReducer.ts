@@ -78,7 +78,6 @@ const userSlice = createSlice({
 			.addCase(
 				checkAuth.fulfilled,
 				(state, action: PayloadAction<UserPayload>) => {
-					console.log(action.payload);
 					state.isLoading = false;
 					state.email = action.payload.user.email;
 					state.name = action.payload.user.name;

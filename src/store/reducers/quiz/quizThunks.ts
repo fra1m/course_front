@@ -6,7 +6,7 @@ import type { QuizState } from './types';
 import type { IQuiz } from '../../../models/IQuiz';
 
 export const saveQuiz = createAsyncThunk<
-	void, // что возвращает при успехе
+	IQuiz, // что возвращает при успехе
 	QuizState, // аргумент
 	{ rejectValue: ErrorTypeAuth } // если будет ошибка
 >('quiz/create', async (_, { getState, rejectWithValue }) => {
@@ -23,6 +23,8 @@ export const saveQuiz = createAsyncThunk<
 				},
 			}
 		);
+
+
 
 		return res.data;
 	} catch (error) {
@@ -107,7 +109,7 @@ export const deleteQuiz = createAsyncThunk<
 	const state = getState() as RootState;
 	const quizData = state.quiz;
 	const accessToken = state.user.accessToken;
-	console.log(quizData.id);
+
 
 	try {
 		const res = await api.delete('/quiz/delete', {
@@ -139,7 +141,7 @@ export const getQuizById = createAsyncThunk<
 	const state = getState() as RootState;
 	const quizData = state.quiz;
 	const accessToken = state.user.accessToken;
-	console.log(quizData.id);
+
 
 	try {
 		const res = await api.delete('/quiz/delete', {

@@ -1,4 +1,5 @@
 import type { IQuiz } from '../IQuiz';
+import type { ICourse } from './ICourse';
 
 export interface LessonPage {
 	startWith: number;
@@ -11,4 +12,5 @@ export interface ILesson {
 	pages: LessonPage;
 	testId: IQuiz['id'] | null;
 	html?: string;
+	courseId: ICourse['id'];
 }

@@ -1,18 +1,21 @@
 import { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../hooks/hooks';
 import { RouteNames } from '../routes';
 import { loginUser } from '../store/reducers/user/userThunks';
 import LoginForm from '../components/LoginForm';
-import { Layout, Row, Col, Card, Typography, message } from 'antd';
+import { App as AntdApp, Layout, Row, Col, Card, Typography } from 'antd';
 
 const { Content } = Layout;
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 export const LoginPage = () => {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const { isAuth, isLoading, saveError } = useAppSelector(state => state.user);
+
+	// ✅ берём message из контекста
+	const { message } = AntdApp.useApp();
 
 	useEffect(() => {
 		if (isAuth) {
@@ -24,7 +27,7 @@ export const LoginPage = () => {
 		if (saveError) {
 			message.error(saveError);
 		}
-	}, [saveError]);
+	}, [saveError, message]);
 
 	const onFinish = (values: { email: string; password: string }) => {
 		dispatch(loginUser(values))
@@ -49,15 +52,6 @@ export const LoginPage = () => {
 							className='shadow-lg'
 						>
 							<LoginForm onFinish={onFinish} loading={isLoading} />
-
-							<Text type='secondary'>
-								Нет аккаунта?{' '}
-								<Link to={RouteNames.REGISTER}>
-									<Text strong underline className='text-blue-600'>
-										Зарегистрироваться
-									</Text>
-								</Link>
-							</Text>
 						</Card>
 					</Col>
 				</Row>

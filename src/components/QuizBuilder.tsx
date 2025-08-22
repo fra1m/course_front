@@ -116,8 +116,6 @@ export const QuizBuilder = () => {
 	const questionTypeLabels: Record<string, string> = {
 		radiogroup: 'Один вариант',
 		checkbox: 'Несколько вариантов',
-		imagepicker: 'Выбор изображения',
-		html: 'HTML контент',
 	};
 
 	return (
@@ -476,7 +474,6 @@ export const QuizBuilder = () => {
 								try {
 									await dispatch(saveQuiz(state)).unwrap();
 									message.success('Тест успешно сохранён!');
-									navigate(RouteNames.QUIZZES); // переход на "Ваши тесты"
 								} catch {
 									message.error('Ошибка при сохранении теста');
 								}
