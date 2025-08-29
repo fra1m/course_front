@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../../../api';
+import { api } from '../../../api';
 import type { ErrorTypeAuth } from '../errorTypes';
 import type { RootState } from '../../store';
 
@@ -20,15 +20,12 @@ export const openPdfPreview = createAsyncThunk<
 		}
 	}
 
-	const accessToken = state.user.accessToken;
+	// const accessToken = state.user.accessToken;
 
 	try {
 		const res = await api.get(`/courses/${courseId}/file`, {
 			responseType: 'blob',
 			withCredentials: true,
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-			},
 		});
 
 		const blob = res.data as Blob;

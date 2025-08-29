@@ -32,6 +32,7 @@ import 'survey-core/i18n/russian';
 import { PlainLight, PlainDark } from 'survey-core/themes';
 import type { ILesson } from '../models/course/ILesson';
 import { RouteNames } from '../routes';
+import type { IQuiz } from '../models/IQuiz';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -75,7 +76,9 @@ export const QuizPage: FC = () => {
 	const navigate = useNavigate();
 	const quizId = state?.id as number | undefined;
 
-	const quiz = useAppSelector(s => s.quiz.quizzes.find(q => q.id === quizId));
+	const quiz = useAppSelector(s =>
+		s.quiz.quizzes.find((q: IQuiz) => q.id === quizId)
+	);
 	const lessons = useAppSelector(s => s.lesson.lessons);
 
 	const currentLesson = useMemo<ILesson | undefined>(() => {

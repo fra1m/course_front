@@ -1,7 +1,6 @@
 import type React from 'react';
 import { LoginPage } from '../pages/LoginPage';
 import { HomePage } from '../pages/HomePage';
-import { RegisterPage } from '../pages/RegisterPage';
 import { QuizBuilder } from '../components/QuizBuilder';
 import { QuizzesPage } from '../pages/QuizzesPage';
 import { CoursesPage } from '../pages/CoursesPage';
@@ -10,6 +9,8 @@ import { Role } from '../store/reducers/user/types';
 import { CourseBuilder } from '../pages/CourseBuilder';
 import { QuizPage } from '../pages/QuizePage';
 import { LessonBuilder } from '../pages/LessonBuilder';
+import UsersPage from '../pages/UsersPage';
+import ProfilePage from '../pages/ProfilePage';
 
 export interface IRoute {
 	path: string;
@@ -23,7 +24,6 @@ export interface IRoute {
 export const RouteNames = {
 	HOME: '/',
 	REGISTER: '/register',
-	PROFILE: '/profile',
 	LOGIN: '/login',
 
 	QUIZ_BUILDER: '/quiz-builder',
@@ -38,17 +38,15 @@ export const RouteNames = {
 	LESSONS: '/lessons',
 	LESSON_VIEW: '/lessons/:id',
 
+	CREATE_USER: '/user-create',
+	GET_ALL_USERS: '/users',
+	PROFILE: '/profile',
+
 	// LOGOUT: '/logout',
 } as const;
 
 export const publickRoutes: IRoute[] = [
 	{ path: RouteNames.LOGIN, exact: true, component: LoginPage, label: 'Вход' },
-	{
-		path: RouteNames.REGISTER,
-		exact: true,
-		component: RegisterPage,
-		label: 'Регистрация',
-	},
 ];
 
 export const privateRoutes: IRoute[] = [
@@ -86,7 +84,7 @@ export const privateRoutes: IRoute[] = [
 		path: RouteNames.COURSES,
 		exact: true,
 		component: CoursesPage,
-		roles: [Role.STUDENT, Role.ADMIN],
+		roles: [Role.STUDENT, Role.TEACHER, Role.ADMIN],
 		label: 'Курсы',
 	},
 	{
@@ -116,5 +114,20 @@ export const privateRoutes: IRoute[] = [
 		exact: true,
 		component: LessonsForm,
 		roles: [Role.STUDENT, Role.TEACHER, Role.ADMIN],
+	},
+
+	{
+		path: RouteNames.PROFILE,
+		exact: true,
+		component: ProfilePage,
+		roles: [Role.USER, Role.STUDENT, Role.TEACHER, Role.ADMIN],
+		label: 'Профиль',
+	},
+	{
+		path: RouteNames.GET_ALL_USERS,
+		exact: true,
+		component: UsersPage,
+		roles: [Role.ADMIN],
+		label: 'Пользователи',
 	},
 ];

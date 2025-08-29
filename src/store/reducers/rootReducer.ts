@@ -1,9 +1,8 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
+// src/store/rootReducer.ts
+import { combineReducers } from '@reduxjs/toolkit';
 import reducers from './reducers';
 
 export const rootReducer = combineReducers(reducers);
 
-export const store = configureStore({ reducer: rootReducer }); //TODO: добавить applyMiddleware()
-
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+// (опционально) тип корневого редьюсера, если где-то нужен
+export type RootReducer = typeof rootReducer;

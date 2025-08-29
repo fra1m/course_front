@@ -1,3 +1,4 @@
+
 import type { IQuiz } from '../IQuiz';
 import type { ICourse } from './ICourse';
 

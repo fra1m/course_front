@@ -104,7 +104,7 @@ const courseSlice = createSlice({
 				state.courses = state.courses.filter(c => c.id !== deletedId);
 				if (state.selectedCourseId === deletedId) {
 					// выбрать первый оставшийся или сбросить выбор
-					state.selectedCourseId = state.courses[0]?.id as any;
+					state.selectedCourseId = state.courses[0]?.id;
 				}
 			});
 	},

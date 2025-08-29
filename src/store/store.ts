@@ -1,29 +1,42 @@
+// FIXME путь файла курса лежит
+
 import { configureStore, isPlain } from '@reduxjs/toolkit';
 import { rootReducer } from './reducers/rootReducer';
+import { persistStore } from 'redux-persist';
 
 const isSerializable = (value: unknown): boolean => {
-	// Разрешаем File/Blob, всё остальное — как обычно
 	if (typeof File !== 'undefined' && value instanceof File) return true;
 	if (typeof Blob !== 'undefined' && value instanceof Blob) return true;
 	if (value instanceof ArrayBuffer) return true;
-	if (ArrayBuffer.isView(value)) return true; // Uint8Array и пр.
-
+	if (ArrayBuffer.isView(value)) return true;
 	return isPlain(value);
 };
 
 export const store = configureStore({
 	reducer: rootReducer,
-	middleware: getDefaultMiddleware =>
-		getDefaultMiddleware({
+	middleware: getDefault =>
+		getDefault({
 			serializableCheck: {
-				isSerializable, // ← ключевая строчка
-				ignoredPaths: ['course.file'], // чтобы не пытался копать внутрь
-				// опционально: если хочешь убрать предупреждение именно для payload.value:
-				// ignoredActionPaths: ['payload.value', 'meta.arg'],
+				isSerializable,
+				ignoredActions: [
+					'persist/PERSIST',
+					'persist/REHYDRATE',
+					'persist/REGISTER',
+					'persist/FLUSH',
+					'persist/PAUSE',
+					'persist/PURGE',
+				],
+				ignoredPaths: [
+					'course.file', // твой игнор
+					// служебный ключ от redux-persist
+					'_persist',
+				],
 			},
 		}),
 });
 
-// Типы для использования в хуках
+export const persistor = persistStore(store);
+
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+export type AppStore = typeof store;

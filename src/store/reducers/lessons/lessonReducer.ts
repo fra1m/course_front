@@ -1,14 +1,12 @@
-//TODO: доделать редьюсер урока
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import {
 	getAllLessons,
 	createLesson,
-	getLessonPDFById,
-	fetchLessonContent,
+	//TODO fetchLessonContent - добавиь addCase нужные
 } from './lessonsThunks';
 import type { LessonState } from './types';
-import type { ILesson, LessonPage } from '../../../models/course/ILesson';
+import type { LessonPage } from '../../../models/course/ILesson';
 
 const initialState: LessonState = {
 	id: 0,
@@ -38,7 +36,7 @@ const lessonSlice = createSlice({
 		setLessonField: (
 			state,
 			action: PayloadAction<{
-				key: keyof LessonState; // ключ состояния
+				key: keyof LessonState;
 				value: string | number | Partial<LessonPage>;
 			}>
 		) => {
@@ -92,21 +90,6 @@ const lessonSlice = createSlice({
 				}
 			})
 
-			.addCase(getLessonPDFById.pending, state => {
-				state.isLoading = true;
-				state.saveError = '';
-			})
-			.addCase(getLessonPDFById.fulfilled, (state, action) => {
-				state.isLoading = false;
-				// если раньше был url — освободим
-				if (state.html) URL.revokeObjectURL(state.html);
-				state.html = action.payload; // blob-url
-			})
-			.addCase(getLessonPDFById.rejected, (state, action: any) => {
-				state.isLoading = false;
-				state.saveError = action.payload?.message ?? 'Ошибка загрузки урока';
-			})
-
 			.addCase(getAllLessons.fulfilled, (state, action) => {
 				state.lessons = action.payload;
 
@@ -114,14 +97,10 @@ const lessonSlice = createSlice({
 				state.saveError = '';
 			})
 			.addCase(getAllLessons.pending, state => {
-
-
 				state.isLoading = true;
 				state.saveError = '';
 			})
 			.addCase(getAllLessons.rejected, (state, action) => {
-
-
 				state.isLoading = false;
 				state.saveError = (action.payload as any)?.message ?? 'Ошибка';
 			});

@@ -7,6 +7,7 @@ import type { ErrorTypeAuth } from '../errorTypes';
 import type { Page } from '../../../models/quiz/IPage';
 import type { IQuiz } from '../../../models/IQuiz';
 
+
 const initialState: QuizState = {
 	id: null,
 	surveyJson: {

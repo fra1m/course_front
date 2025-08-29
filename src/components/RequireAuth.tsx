@@ -11,11 +11,13 @@ interface RequireAuthProps {
 }
 
 export const RequireAuth = ({ children, allowedRoles }: RequireAuthProps) => {
-	const { isAuth, role } = useAppSelector(state => state.user);
-	console.log(role);
-	if (!isAuth) {
-		return <Navigate to={RouteNames.LOGIN} replace />;
-	}
+	const { isAuth, role, authReady, isLoading } = useAppSelector(s => s.user);
+
+	// Пока не знаем результат checkAuth — ничего не решаем и не логируем
+	if (!authReady || isLoading) return null; // или <Spin fullscreen />
+	// console.log(role);
+
+	if (!isAuth) return <Navigate to={RouteNames.LOGIN} replace />;
 
 	if (allowedRoles && !allowedRoles.includes(role)) {
 		return <Navigate to={RouteNames.HOME} replace />;

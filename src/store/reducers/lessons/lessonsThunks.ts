@@ -1,8 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../../../api';
-import type { RootState } from '../rootReducer';
+import { api } from '../../../api';
+
 import type { ErrorTypeAuth } from '../errorTypes';
 import type { ILesson } from '../../../models/course/ILesson';
+import type { RootState } from '../../store';
 
 export const createLesson = createAsyncThunk<ILesson>(
 	'lesson/create',
@@ -10,22 +11,13 @@ export const createLesson = createAsyncThunk<ILesson>(
 		const state = getState() as RootState;
 		const { pages, title, testId, courseId } = state.lesson;
 
-		const accessToken = state.user.accessToken;
 		try {
-			const res = await api.post(
-				'/lessons/create',
-				{
-					title,
-					pages,
-					courseId,
-					quizId: testId,
-				},
-				{
-					headers: {
-						Authorization: `Bearer ${accessToken}`,
-					},
-				}
-			);
+			const res = await api.post('/lessons/create', {
+				title,
+				pages,
+				courseId,
+				quizId: testId,
+			});
 
 			return res.data;
 		} catch (error) {
@@ -42,44 +34,12 @@ export const createLesson = createAsyncThunk<ILesson>(
 	}
 );
 
-export const getLessonPDFById = createAsyncThunk<string, number>( //TODO: delete
-	'lesson/getByIdPDF',
-	async (lessonId, { getState, rejectWithValue }) => {
-		const state = getState() as RootState;
-		const accessToken = state.user.accessToken;
-
-		try {
-			const res = await api.get(`/lessons/${lessonId}/content`, {
-				responseType: 'blob',
-				headers: { Authorization: `Bearer ${accessToken}` },
-			});
-
-			const url = URL.createObjectURL(
-				new Blob([res.data], { type: 'application/pdf' })
-			);
-			return url;
-		} catch (error) {
-			const err = error as { response?: { data: ErrorTypeAuth } };
-			return rejectWithValue(
-				err.response?.data ?? {
-					message: 'Ошибка при получении уроков',
-					statusCode: 500,
-				}
-			);
-		}
-	}
-);
-
 export const getAllLessons = createAsyncThunk(
 	'lesson/getAll',
-	async (_, { getState, rejectWithValue }) => {
-		const state = getState() as RootState;
-		const accessToken = state.user.accessToken;
+	async (_, { rejectWithValue }) => {
 		try {
-			const res = await api.get('/lessons/all', {
-				headers: { Authorization: `Bearer ${accessToken}` },
-			});
-			// data: Array<{ id, title, pages, contentUrl }>
+			const res = await api.get('/lessons/all');
+
 			return res.data;
 		} catch (error) {
 			const err = error as { response?: { data: ErrorTypeAuth } };
@@ -97,14 +57,11 @@ export const fetchLessonContent = createAsyncThunk<
 	ArrayBuffer, // payload on success
 	number, // arg: lessonId
 	{ state: RootState; rejectValue: ErrorTypeAuth }
->('lessons/fetchContent', async (lessonId, { getState, rejectWithValue }) => {
-	const token = getState().user.accessToken;
-
+>('lessons/fetchContent', async (lessonId, { rejectWithValue }) => {
 	try {
 		const res = await api.get<ArrayBuffer>(`/lessons/${lessonId}/content`, {
 			responseType: 'arraybuffer', // важно: сырой бинарь
 			withCredentials: true,
-			headers: token ? { Authorization: `Bearer ${token}` } : {},
 		});
 
 		return res.data;

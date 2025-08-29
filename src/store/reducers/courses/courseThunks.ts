@@ -1,16 +1,16 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../../../api';
+
 import type { ErrorTypeAuth } from '../errorTypes';
-import type { RootState } from '../rootReducer';
+
 import type { ICourse } from '../../../models/course/ICourse';
+import { api } from '../../../api';
+import type { RootState } from '../../store';
 
 export const createCourse = createAsyncThunk(
 	'lesson/create',
 	async (_, { getState, rejectWithValue }) => {
 		const state = getState() as RootState;
 		const { title, description, file } = state.course;
-
-
 
 		const accessToken = state.user.accessToken;
 		try {
@@ -27,8 +27,6 @@ export const createCourse = createAsyncThunk(
 					Authorization: `Bearer ${accessToken}`,
 				},
 			});
-
-
 
 			return res.data;
 		} catch (error) {

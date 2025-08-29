@@ -27,7 +27,7 @@ import {
 	DeleteOutlined,
 } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../hooks/hooks';
-import { getAllLessons } from '../store/reducers/lessons/lessonsThunks';
+// import { getAllLessons } from '../store/reducers/lessons/lessonsThunks';
 import {
 	setCourseField,
 	setSelectedCourseId,
@@ -51,8 +51,8 @@ export const CoursesPage: FC = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		dispatch(getAllQuizzes());
-		dispatch(getAllLessons()); // уроки (в них уже есть testId)
+		// dispatch(getAllQuizzes());
+		// dispatch(getAllLessons()); // уроки (в них уже есть testId)
 	}, [dispatch]);
 
 	const { courses, selectedCourseId } = useAppSelector(s => s.course);
