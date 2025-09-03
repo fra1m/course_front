@@ -1,4 +1,3 @@
-
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import {
 	getAllLessons,
@@ -33,6 +32,10 @@ const lessonSlice = createSlice({
 	name: 'lesson',
 	initialState,
 	reducers: {
+		clearLessons() {
+			return initialState; // быстрый полный сброс
+		},
+
 		setLessonField: (
 			state,
 			action: PayloadAction<{
@@ -102,11 +105,11 @@ const lessonSlice = createSlice({
 			})
 			.addCase(getAllLessons.rejected, (state, action) => {
 				state.isLoading = false;
-				state.saveError = (action.payload as any)?.message ?? 'Ошибка';
+				state.saveError = action.payload?.message ?? 'Ошибка';
 			});
 	},
 });
 
-export const { setLessonField } = lessonSlice.actions;
+export const { clearLessons, setLessonField } = lessonSlice.actions;
 
 export default lessonSlice.reducer;

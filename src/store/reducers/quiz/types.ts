@@ -1,4 +1,5 @@
-import type { IQuiz } from '../../../models/IQuiz';
+import type { IQuiz } from "../../../models/quiz/IQuiz";
+
 
 export interface QuizState extends IQuiz {
 	quizzes: IQuiz[];

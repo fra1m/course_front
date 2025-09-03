@@ -25,6 +25,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.3",
     "redux-persist": "^6.0.0",
+    "socket.io-client": "^4.8.1",
     "survey-core": "^2.2.6",
     "survey-creator-react": "^2.2.6",
     "survey-react-ui": "^2.2.6",

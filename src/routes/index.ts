@@ -1,16 +1,17 @@
 import type React from 'react';
-import { LoginPage } from '../pages/LoginPage';
-import { HomePage } from '../pages/HomePage';
-import { QuizBuilder } from '../components/QuizBuilder';
-import { QuizzesPage } from '../pages/QuizzesPage';
-import { CoursesPage } from '../pages/CoursesPage';
-import LessonsForm from '../components/LessonsForm';
+import { LoginPage } from '../pages/Loggin/LoginPage';
+import { HomePage } from '../pages/Home/HomePage';
+import { QuizBuilder } from '../pages/Quiz/QuizBuilder';
+import { QuizzesPage } from '../pages/Quiz/QuizzesPage';
+import { CoursesPage } from '../pages/Course/CoursesPage';
+import LessonsForm from '../components/Forms/LessonsForm';
 import { Role } from '../store/reducers/user/types';
-import { CourseBuilder } from '../pages/CourseBuilder';
-import { QuizPage } from '../pages/QuizePage';
-import { LessonBuilder } from '../pages/LessonBuilder';
-import UsersPage from '../pages/UsersPage';
-import ProfilePage from '../pages/ProfilePage';
+import { CourseBuilder } from '../pages/Course/CourseBuilder';
+import { QuizPage } from '../pages/Quiz/QuizePage';
+import { LessonBuilder } from '../pages/Lesson/LessonBuilder';
+import UsersPage from '../pages/User/UsersPage';
+import ProfilePage from '../pages/Profile/ProfilePage';
+import SpecializationPage from '../pages/Specialization/SpecializationPage';
 
 export interface IRoute {
 	path: string;
@@ -42,6 +43,7 @@ export const RouteNames = {
 	GET_ALL_USERS: '/users',
 	PROFILE: '/profile',
 
+	SPECIALIZATION: '/specializations',
 	// LOGOUT: '/logout',
 } as const;
 
@@ -70,7 +72,7 @@ export const privateRoutes: IRoute[] = [
 		path: RouteNames.QUIZZES,
 		exact: true,
 		component: QuizzesPage,
-		roles: [Role.STUDENT, Role.TEACHER, Role.ADMIN],
+		roles: [Role.TEACHER, Role.ADMIN],
 		label: 'Ваши тесты',
 	},
 	{
@@ -129,5 +131,13 @@ export const privateRoutes: IRoute[] = [
 		component: UsersPage,
 		roles: [Role.ADMIN],
 		label: 'Пользователи',
+	},
+
+	{
+		path: RouteNames.SPECIALIZATION,
+		exact: true,
+		component: SpecializationPage,
+		roles: [Role.ADMIN], // только админ
+		label: 'Специализации',
 	},
 ];

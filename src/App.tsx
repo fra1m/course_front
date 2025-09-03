@@ -1,5 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
-import { AppRouter } from './components/AppRouter';
+import { AppRouter } from './routes/AppRouter';
 import {
 	ConfigProvider,
 	Layout,
@@ -7,24 +7,27 @@ import {
 	theme as antdTheme,
 	App as AntdApp,
 } from 'antd';
-import { Navbar } from './components/Nav';
-import { useAppDispatch, useAppSelector } from './hooks/hooks';
 import { useEffect, useRef } from 'react';
-import { checkAuth } from './store/reducers/user/userThunks';
-import GlobalPdfPreview from './components/GlobalPdfPreview';
-import BackgroundFX from './components/BackgroundFX';
-import { useThemeMode } from './hooks/useThemeMode';
-import { appBootstrap } from './store/appBootstrap';
 import { applyAuthHeader } from './api';
+import GlobalPdfPreview from './components/Modals/GlobalPdfPreview';
+import BackgroundFX from './components/ui/BackgroundFX';
+import { Navbar } from './components/ui/Nav';
+import { useThemeMode } from './components/ui/useThemeMode';
+import { useAppDispatch, useAppSelector } from './hooks/hooks';
+import { appBootstrap } from './store/appBootstrap';
+import { resetBootstrap, setSessionKey } from './store/appSlice';
+import { clearCourses } from './store/reducers/courses/courseReducer';
+import { clearLessons } from './store/reducers/lessons/lessonReducer';
+import { clearQuizzes } from './store/reducers/quiz/quizReducer';
+import { checkAuth } from './store/reducers/user/userThunks';
 
 const App = () => {
 	const dispatch = useAppDispatch();
 	const { mode, toggle } = useThemeMode();
 
-	const { isLoading, isAuth, authReady, accessToken } = useAppSelector(
-		s => s.user
-	);
-	const bootstrapped = useAppSelector(s => s.app.bootstrapped);
+	const { isLoading, isAuth, authReady, accessToken, email, specialization } =
+		useAppSelector(s => s.user);
+	const { bootstrapped, sessionKey } = useAppSelector(s => s.app);
 
 	// 1) сразу ставим Authorization из ре-гидрированного стора
 	useEffect(() => {
@@ -39,13 +42,40 @@ const App = () => {
 		dispatch(checkAuth());
 	}, [dispatch]);
 
-	// 3) глобальный бутстрап после авторизации
-	const didBootstrap = useRef(false);
+	// 3) следим за «сессионным ключом» (email + specializationId)
+	//    если он изменился (например, админ сменил студенту специализацию),
+	//    очищаем каталожные кэши и перезапускаем бутстрап
 	useEffect(() => {
 		if (!authReady || !isAuth) return;
-		if (bootstrapped || didBootstrap.current) return;
-		didBootstrap.current = true;
-		dispatch(appBootstrap());
+
+		const identity = (email ?? 'anon').toLowerCase();
+		const spec = Number.isFinite(specialization?.id)
+			? String(specialization?.id)
+			: 'none';
+		const currentSessionKey = `${identity}:${spec}`;
+
+		if (sessionKey && sessionKey !== currentSessionKey) {
+			// чистим зависящие от специализации / роли кэши
+			dispatch(clearCourses());
+			dispatch(clearLessons());
+			dispatch(clearQuizzes());
+
+			// сбрасываем флаг бутстрапа — чтобы ниже он запустился заново
+			dispatch(resetBootstrap());
+		}
+
+		// обновляем сохранённый ключ (в т.ч. на первый раз)
+		if (sessionKey !== currentSessionKey) {
+			dispatch(setSessionKey(currentSessionKey));
+		}
+	}, [authReady, isAuth, email, specialization, sessionKey, dispatch]);
+
+	// 4) глобальный бутстрап: запускаем каждый раз, когда auth готов и он ещё не выполнен
+	useEffect(() => {
+		if (!authReady || !isAuth) return;
+		if (!bootstrapped) {
+			dispatch(appBootstrap());
+		}
 	}, [dispatch, authReady, isAuth, bootstrapped]);
 
 	if (isLoading && !authReady) {

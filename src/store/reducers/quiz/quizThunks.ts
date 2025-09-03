@@ -3,8 +3,8 @@ import { api } from '../../../api';
 
 import type { ErrorTypeAuth } from '../errorTypes';
 import type { QuizState } from './types';
-import type { IQuiz } from '../../../models/IQuiz';
 import type { RootState } from '../../store';
+import type { IQuiz } from '../../../models/quiz/IQuiz';
 
 export const saveQuiz = createAsyncThunk<
 	IQuiz, // что возвращает при успехе
@@ -35,6 +35,8 @@ export const getAllQuizzes = createAsyncThunk(
 	async (_, { rejectWithValue }) => {
 		try {
 			const res = await api.get('/quiz/all');
+
+			console.log('RES QUIZ: ', res.data);
 
 			return res.data;
 		} catch (error) {

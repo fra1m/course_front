@@ -17,7 +17,7 @@ import {
 	changeMyPassword,
 } from './userThunks';
 import { Role } from './types';
-import type { IUser } from '../../../models/IUser';
+import type { IUser } from '../../../models/user/IUser';
 import { applyAuthHeader } from '../../../api';
 
 const initialState: UserState = {
@@ -26,6 +26,7 @@ const initialState: UserState = {
 	accessToken: '',
 	saveError: null,
 	role: Role.USER,
+	specialization: null,
 	users: [],
 	isAuth: false,
 	isLoading: false,
@@ -44,7 +45,7 @@ const userSlice = createSlice({
 			state.isAuth = false;
 			state.saveError = null;
 			state.role = Role.USER;
-			// applyAuthHeader(undefined);
+			applyAuthHeader(undefined);
 		},
 	},
 	extraReducers: builder => {
@@ -89,6 +90,7 @@ const userSlice = createSlice({
 					state.role = action.payload.user.role;
 					state.myStats = action.payload.user.myStats;
 					state.authReady = true; // опционально
+					state.specialization = action.payload.user.specialization;
 					applyAuthHeader(action.payload.tokens.accessToken);
 				}
 			)
@@ -117,8 +119,10 @@ const userSlice = createSlice({
 					state.accessToken = action.payload.tokens.accessToken;
 					state.isAuth = true;
 					state.role = action.payload.user.role;
-					state.authReady = true; // ✅ добавь
-					applyAuthHeader(action.payload.tokens.accessToken); // см. пункт 3
+					state.myStats = action.payload.user.myStats;
+					state.authReady = true; // опционально
+					state.specialization = action.payload.user.specialization;
+					applyAuthHeader(action.payload.tokens.accessToken);
 				}
 			)
 			.addCase(checkAuth.rejected, (state, action) => {

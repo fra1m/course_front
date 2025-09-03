@@ -5,8 +5,7 @@ import type { QuizState } from './types';
 import { deleteQuiz, getAllQuizzes, saveQuiz, updateQuiz } from './quizThunks';
 import type { ErrorTypeAuth } from '../errorTypes';
 import type { Page } from '../../../models/quiz/IPage';
-import type { IQuiz } from '../../../models/IQuiz';
-
+import type { IQuiz } from '../../../models/quiz/IQuiz';
 
 const initialState: QuizState = {
 	id: null,
@@ -46,6 +45,10 @@ const quizSlice = createSlice({
 	name: 'quiz',
 	initialState,
 	reducers: {
+		clearQuizzes() {
+			return initialState; // быстрый полный сброс
+		},
+
 		clearLastCreatedQuiz(state) {
 			state.lastCreatedId = null;
 		},
@@ -225,7 +228,6 @@ const quizSlice = createSlice({
 				state.saveError = null;
 
 				state.quizzes = action.payload;
-
 			})
 			.addCase(getAllQuizzes.rejected, (state, action) => {
 				state.isLoading = false;
@@ -274,6 +276,7 @@ const quizSlice = createSlice({
 });
 
 export const {
+	clearQuizzes,
 	generateSurveyJson,
 	setTitle,
 	removePage,

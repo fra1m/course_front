@@ -14,7 +14,6 @@ const pdfSlice = createSlice({
 	name: 'pdf',
 	initialState,
 	reducers: {
-		// пригодится для явного закрытия
 		closePdfPreview(state) {
 			state.open = false;
 			state.courseId = null;

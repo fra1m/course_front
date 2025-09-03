@@ -16,6 +16,7 @@ const initialState: CourseState = {
 	courses: [],
 	teacherId: 0,
 	selectedCourseId: 0,
+	specializationId: 0,
 	file: null,
 	saveError: '',
 	isSaving: false,
@@ -27,6 +28,10 @@ const courseSlice = createSlice({
 	name: 'course',
 	initialState,
 	reducers: {
+		clearCourses() {
+			return initialState; // быстрый полный сброс
+		},
+
 		setCourseField: (
 			state,
 			action: PayloadAction<{
@@ -40,6 +45,7 @@ const courseSlice = createSlice({
 				case 'id':
 				case 'teacherId':
 				case 'selectedCourseId':
+				case 'specializationId':
 					state[key] = value as number;
 					break;
 				case 'title':
@@ -110,6 +116,7 @@ const courseSlice = createSlice({
 	},
 });
 
-export const { setCourseField, setSelectedCourseId } = courseSlice.actions;
+export const { clearCourses, setCourseField, setSelectedCourseId } =
+	courseSlice.actions;
 
 export default courseSlice.reducer;

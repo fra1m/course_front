@@ -1,8 +1,11 @@
-import type { ITokens } from '../../../models/ITokens';
-import type { IUser } from '../../../models/IUser';
+import type { ITokens } from '../../../models/user/ITokens';
+import type { IUser } from '../../../models/user/IUser';
+import type { ISpecialization } from '../../../models/specialization/ISpecialization';
 
 export type Role = (typeof Role)[keyof typeof Role];
-export type IUserListItem = IUser & { password?: string };
+export type IUserListItem = IUser & {
+	password?: string;
+};
 
 export interface UserState extends Omit<IUser, 'id'> {
 	accessToken: string;
@@ -31,6 +34,7 @@ export type UpdateUserPatch = Partial<{
 	role: Role;
 	email: string; // на будущее
 	password: string; // на будущее
+	specializationId: ISpecialization['id'] | null; //FIXME: поменять на ISpecializationId
 }>;
 
 export interface UserRegPayload {

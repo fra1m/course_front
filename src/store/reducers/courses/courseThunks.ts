@@ -10,23 +10,21 @@ export const createCourse = createAsyncThunk(
 	'lesson/create',
 	async (_, { getState, rejectWithValue }) => {
 		const state = getState() as RootState;
-		const { title, description, file } = state.course;
+		const { title, description, file, specializationId } = state.course;
 
-		const accessToken = state.user.accessToken;
+		console.log(specializationId);
+
 		try {
 			const fd = new FormData();
 			fd.append('title', title);
 			fd.append('description', description ?? '');
+			fd.append('specializationId', String(specializationId));
 
 			if (file) {
 				fd.append('file', file, file.name);
 			}
 
-			const res = await api.post('/courses/create', fd, {
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-			});
+			const res = await api.post('/courses/create', fd);
 
 			return res.data;
 		} catch (error) {
@@ -49,17 +47,12 @@ export const updateCourse = createAsyncThunk<ICourse>(
 		const state = getState() as RootState;
 		const { title, description, selectedCourseId } = state.course;
 
-		const accessToken = state.user.accessToken;
 		try {
-			const res = await api.patch(
-				'/courses/update',
-				{ id: selectedCourseId, title, description },
-				{
-					headers: {
-						Authorization: `Bearer ${accessToken}`,
-					},
-				}
-			);
+			const res = await api.patch('/courses/update', {
+				id: selectedCourseId,
+				title,
+				description,
+			});
 
 			return res.data;
 		} catch (error) {
@@ -78,25 +71,20 @@ export const updateCourse = createAsyncThunk<ICourse>(
 
 export const getAllCourses = createAsyncThunk(
 	'lesson/getAllCourses',
-	async (_, { getState, rejectWithValue }) => {
-		const state = getState() as RootState;
-
-		const accessToken = state.user.accessToken;
+	async (_, { rejectWithValue }) => {
 		try {
-			const res = await api.get('/courses/getAllCourses', {
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-			});
+			const res = await api.get('/courses/getAllCourses');
+
+			console.log('ALL COURSES: ', res.data);
 
 			return res.data;
 		} catch (error) {
 			const err = error as { response?: { data: ErrorTypeAuth } };
-			console.error('Ошибка при сохранении курса', err.response?.data);
+			console.error('Ошибка при получение курсов', err.response?.data);
 
 			return rejectWithValue(
 				err.response?.data || {
-					message: 'Ошибка при сохранении курса',
+					message: 'Ошибка при получение курсов',
 					statusCode: 500,
 				}
 			);
@@ -109,14 +97,9 @@ export const deleteCourse = createAsyncThunk<ICourse>(
 	async (_, { getState, rejectWithValue }) => {
 		const state = getState() as RootState;
 		const { selectedCourseId } = state.course;
-
-		const accessToken = state.user.accessToken;
 		try {
 			const res = await api.delete('/courses/delete', {
 				data: { id: selectedCourseId },
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
 			});
 
 			return res.data;

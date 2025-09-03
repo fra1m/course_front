@@ -3,6 +3,10 @@ import type { RootState } from './store';
 import { markBootstrapped } from './appSlice';
 import { getMyStats, getAllUsers } from './reducers/user/userThunks';
 import { Role } from './reducers/user/types';
+import { getAllCourses } from './reducers/courses/courseThunks';
+import { fetchSpecializations } from './reducers/specializations/specializationsThunks';
+import { getAllLessons } from './reducers/lessons/lessonsThunks';
+import { getAllQuizzes } from './reducers/quiz/quizThunks';
 
 export const appBootstrap = createAsyncThunk<void, void, { state: RootState }>(
 	'app/bootstrap',
@@ -20,10 +24,34 @@ export const appBootstrap = createAsyncThunk<void, void, { state: RootState }>(
 				.catch(() => {})
 		);
 
+		jobs.push(
+			dispatch(getAllCourses())
+				.unwrap()
+				.catch(() => {})
+		);
+
+		jobs.push(
+			dispatch(getAllLessons())
+				.unwrap()
+				.catch(() => {})
+		);
+
 		// админ/преподаватель — часто нужен список пользователей
 		if (user.role === Role.ADMIN || user.role === Role.TEACHER) {
 			jobs.push(
 				dispatch(getAllUsers())
+					.unwrap()
+					.catch(() => {})
+			);
+
+			jobs.push(
+				dispatch(getAllQuizzes())
+					.unwrap()
+					.catch(() => {})
+			);
+
+			jobs.push(
+				dispatch(fetchSpecializations())
 					.unwrap()
 					.catch(() => {})
 			);

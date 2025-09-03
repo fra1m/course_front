@@ -1,11 +1,12 @@
+import sessionStorage from 'redux-persist/lib/storage/session';
+import { persistReducer } from 'redux-persist';
+import appSlice from '../appSlice';
 import userSlice from './user/userReducer';
 import quizeSlice from './quiz/quizReducer';
 import lessonSlice from './lessons/lessonReducer';
 import courseSlice from './courses/courseReducer';
 import pdfSlice from './pdf/pdfReducer';
-import appSlice from '../appSlice';
-import { persistReducer } from 'redux-persist';
-import sessionStorage from 'redux-persist/lib/storage/session';
+import specializationSlice from './specializations/specializationsReducer';
 
 const userPersist = persistReducer(
 	{
@@ -50,6 +51,14 @@ const quizPersist = persistReducer(
 	},
 	quizeSlice
 );
+const specializationPersist = persistReducer(
+	{
+		key: 'specialization',
+		storage: sessionStorage,
+		blacklist: ['isLoading', 'saveError'],
+	},
+	specializationSlice
+);
 
 export default {
 	app: appPersist,
@@ -57,5 +66,6 @@ export default {
 	course: coursePersist,
 	lesson: lessonPersist,
 	quiz: quizPersist,
+	specialization: specializationPersist,
 	pdf: pdfSlice,
 };

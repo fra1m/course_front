@@ -5,9 +5,9 @@ export function genPassword(length: number = 12): string {
 
 	const cryptoObj =
 		typeof globalThis !== 'undefined' &&
-		(globalThis as any).crypto &&
-		'getRandomValues' in (globalThis as any).crypto
-			? (globalThis as any).crypto
+		globalThis.crypto &&
+		'getRandomValues' in globalThis.crypto
+			? globalThis.crypto
 			: null;
 
 	if (cryptoObj) {
