@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
 import { RouteNames } from '../../routes';
 import { loginUser } from '../../store/reducers/user/userThunks';
@@ -7,7 +7,7 @@ import LoginForm from '../../components/Forms/LoginForm';
 import { App as AntdApp, Layout, Row, Col, Card, Typography } from 'antd';
 
 const { Content } = Layout;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 export const LoginPage = () => {
 	const dispatch = useAppDispatch();
@@ -51,6 +51,15 @@ export const LoginPage = () => {
 							className='shadow-lg'
 						>
 							<LoginForm onFinish={onFinish} loading={isLoading} />
+
+							<Text type='secondary'>
+								Нет аккаунта?{' '}
+								<Link to={RouteNames.REGISTER}>
+									<Text strong underline className='text-blue-600'>
+										Зарегистрироваться
+									</Text>
+								</Link>
+							</Text>
 						</Card>
 					</Col>
 				</Row>

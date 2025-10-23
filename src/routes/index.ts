@@ -12,6 +12,7 @@ import { LessonBuilder } from '../pages/Lesson/LessonBuilder';
 import UsersPage from '../pages/User/UsersPage';
 import ProfilePage from '../pages/Profile/ProfilePage';
 import SpecializationPage from '../pages/Specialization/SpecializationPage';
+import { RegisterPageForAdmin } from '../pages/User/RegisterPageForAdmin';
 
 export interface IRoute {
 	path: string;
@@ -49,6 +50,12 @@ export const RouteNames = {
 
 export const publickRoutes: IRoute[] = [
 	{ path: RouteNames.LOGIN, exact: true, component: LoginPage, label: 'Вход' },
+	{
+		path: RouteNames.REGISTER,
+		exact: true,
+		component: RegisterPageForAdmin,
+		label: 'Регистрация',
+	},
 ];
 
 export const privateRoutes: IRoute[] = [

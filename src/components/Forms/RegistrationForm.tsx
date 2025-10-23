@@ -7,7 +7,12 @@ import { rulesForm } from '../../utils/RulesForm';
 const { Text } = Typography;
 
 interface RegistrationFormProps {
-	onFinish: (values: { email: string; password: string; name: string }) => void;
+	onFinish: (values: {
+		email: string;
+		password: string;
+		name: string;
+		role: string;
+	}) => void;
 	loading: boolean;
 	error?: string;
 }
@@ -35,6 +40,14 @@ const RegistrationForm: FC<RegistrationFormProps> = ({
 }) => {
 	return (
 		<Form layout='vertical' onFinish={onFinish} className='space-y-4'>
+			<Form.Item
+				label='Роль'
+				name='role'
+				rules={[rulesForm.requiered('Введите ваше имя')]}
+			>
+				<Input placeholder='Ваше имя' />
+			</Form.Item>
+
 			<Form.Item
 				label='Имя'
 				name='name'
