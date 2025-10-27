@@ -1,19 +1,23 @@
-//TODO: доделать редьюсер кусра
-
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { CourseState } from './types';
-
-import mockCourses from '../../../mocks/courseMocks'; //FIXME: убрать моки
-import type { ICourse } from '../../../models/course/ICourse';
-import type { ILesson } from '../../../models/course/ILesson';
-import type { ISection } from '../../../models/course/ISection';
+import type { RcFile } from 'antd/es/upload';
+import {
+	createCourse,
+	deleteCourse,
+	getAllCourses,
+	updateCourse,
+} from './courseThunks';
 
 const initialState: CourseState = {
-	id: null,
+	id: 0,
 	title: '',
 	description: '',
-	sections: [],
+	lessons: [],
+	courses: [],
 	teacherId: 0,
+	selectedCourseId: 0,
+	specializationId: 0,
+	file: null,
 	saveError: '',
 	isSaving: false,
 	isLoading: false,
@@ -24,101 +28,95 @@ const courseSlice = createSlice({
 	name: 'course',
 	initialState,
 	reducers: {
-		loadMock(state) {
-			state.courses = mockCourses;
+		clearCourses() {
+			return initialState; // быстрый полный сброс
 		},
-		setCourseField: (state, action) => {
-			state[action.payload.field] = action.payload.value;
-		},
-		// addSection: state => {
-		// 	const sectionLendth = state.sections.length;
-		// 	state.sections.push(sectionLendth + 1);
-		// },
-		// updateLessonSection: (state, action) => {
-		// 	const section = state.lessons.find(l => l.id === action.payload.id); //FIXME: ошибка при доабвлении теста [Error] TypeError: undefined is not an object (evaluating 'state.lessons.find')
-		// 	if (section) Object.assign(section, action.payload.data);
-		// },
-		removeLessonSection: (state, action: PayloadAction<number>) => {
-			const sectionId = action.payload;
-			state.sections = state.sections.filter(s => s.id !== sectionId);
-			state.lessons = state.lessons.filter(l => l.sectionId !== sectionId);
-		},
-		saveCourse: (state, action: PayloadAction<CourseState>) => {
-			console.log('saveCourse', action.payload);
-		}, // thunk
 
-		updateLesson: (
+		setCourseField: (
 			state,
 			action: PayloadAction<{
-				sectionId: number;
-				data: Partial<ILesson>;
+				key: keyof CourseState;
+				value: string | number | RcFile | null | number[];
 			}>
 		) => {
-			const { sectionId, data } = action.payload;
+			const { key, value } = action.payload;
 
-			console.log('updateLesson', state.lessons);
-
-			const section = state.lessons.find(l => l.sectionId === sectionId);
-			if (section) {
-				Object.assign(section, data);
-			}
-			console.log('updateLesson', section);
-		},
-		addNewSection(state) {
-			state.sections.push({
-				id: state.sections.length + 1,
-				title: '',
-				description: '',
-				lessons: [] as ILesson[],
-			} as ISection);
-
-			console.log(state.sections);
-		},
-		addLessonToSection: (
-			state,
-			action: PayloadAction<{ sectionId: number; lesson: ILesson }>
-		) => {
-			const section = state.sections.find(
-				s => s.id === action.payload.sectionId
-			);
-			console.log(section?.id);
-			if (section) {
-				section.lessons.push(action.payload.lesson);
+			switch (key) {
+				case 'id':
+				case 'teacherId':
+				case 'selectedCourseId':
+				case 'specializationId':
+					state[key] = value as number;
+					break;
+				case 'title':
+				case 'description':
+				case 'filePath':
+				case 'saveError':
+					state[key] = value as string;
+					break;
+				case 'file':
+					state[key] = value as File | null;
+					break;
+				case 'lessons':
+					state[key] = value as number[];
+					break;
+				case 'isSaving':
+				case 'isLoading':
+				case 'isUpdate':
+					if (typeof value === 'boolean') state[key] = value;
+					break;
+				default:
+					break;
 			}
 		},
-		updateSection: (
-			state,
-			action: PayloadAction<{
-				sectionId: number;
-				data: Partial<ISection>;
-			}>
-		) => {
-			const { sectionId, data } = action.payload;
-			const section = state.sections.find(s => s.id === sectionId);
 
-			if (section) {
-				Object.assign(section, data);
-			}
+		setSelectedCourseId(state, action: PayloadAction<number>) {
+			state.selectedCourseId = action.payload;
 		},
 	},
 
 	extraReducers: builder => {
-		builder;
+		builder
+			.addCase(createCourse.pending, state => {
+				state.isSaving = true;
+				state.saveError = '';
+			})
+			.addCase(createCourse.fulfilled, (state, action) => {
+				state.courses?.push(action.payload);
+				state.isSaving = false;
+			})
+			.addCase(createCourse.rejected, (state, action) => {
+				state.isSaving = false;
+				state.saveError = action.payload?.message;
+			})
+
+			.addCase(getAllCourses.fulfilled, (state, action) => {
+				state.courses = action.payload;
+				state.saveError = '';
+			})
+			.addCase(getAllCourses.rejected, (state, action) => {
+				state.saveError = action.payload?.message;
+			})
+
+			.addCase(updateCourse.fulfilled, (state, action) => {
+				const i = state.courses.findIndex(c => c.id === action.payload.id);
+				if (i !== -1) {
+					state.courses[i] = { ...state.courses[i], ...action.payload };
+				}
+			})
+
+			.addCase(deleteCourse.fulfilled, (state, action) => {
+				const deletedId = action.payload.id;
+				state.courses = state.courses.filter(c => c.id !== deletedId);
+				if (state.selectedCourseId === deletedId) {
+					// выбрать первый оставшийся или сбросить выбор
+					state.selectedCourseId = state.courses[0]?.id;
+				}
+			});
 	},
 });
 
-export const {
-	setCourseField,
-	// addSection,
-	// updateLessonSection,
-	removeLessonSection,
-	saveCourse,
-
-	updateLesson,
-	addLessonToSection,
-	addNewSection,
-	updateSection,
-	loadMock, //TODO: удалить после тестов
-} = courseSlice.actions;
+export const { clearCourses, setCourseField, setSelectedCourseId } =
+	courseSlice.actions;
 
 export default courseSlice.reducer;

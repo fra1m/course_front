@@ -1,28 +1,20 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../../../api';
-import type { RootState } from '../rootReducer';
+import { api } from '../../../api';
+
 import type { ErrorTypeAuth } from '../errorTypes';
 import type { QuizState } from './types';
-import type { IQuiz } from '../../../models/IQuiz';
+import type { RootState } from '../../store';
+import type { IQuiz } from '../../../models/quiz/IQuiz';
 
 export const saveQuiz = createAsyncThunk<
-	void, // что возвращает при успехе
+	IQuiz, // что возвращает при успехе
 	QuizState, // аргумент
 	{ rejectValue: ErrorTypeAuth } // если будет ошибка
 >('quiz/create', async (_, { getState, rejectWithValue }) => {
 	const state = getState() as RootState;
 	const quizData = state.quiz.surveyJson;
-	const accessToken = state.user.accessToken;
 	try {
-		const res = await api.post(
-			'/quiz/create',
-			{ surveyJson: quizData },
-			{
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-			}
-		);
+		const res = await api.post('/quiz/create', { surveyJson: quizData });
 
 		return res.data;
 	} catch (error) {
@@ -40,16 +32,11 @@ export const saveQuiz = createAsyncThunk<
 
 export const getAllQuizzes = createAsyncThunk(
 	'quiz/all',
-	async (_, { getState, rejectWithValue }) => {
-		const state = getState() as RootState;
-
-		const accessToken = state.user.accessToken;
+	async (_, { rejectWithValue }) => {
 		try {
-			const res = await api.get('/quiz/all', {
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-			});
+			const res = await api.get('/quiz/all');
+
+			console.log('RES QUIZ: ', res.data);
 
 			return res.data;
 		} catch (error) {
@@ -73,17 +60,12 @@ export const updateQuiz = createAsyncThunk<
 >('quiz/update', async (_, { getState, rejectWithValue }) => {
 	const state = getState() as RootState;
 	const quizData = state.quiz;
-	const accessToken = state.user.accessToken;
+	// const accessToken = state.user.accessToken;
 	try {
-		const res = await api.patch(
-			'/quiz/update',
-			{ surveyJson: quizData.surveyJson, id: quizData.id },
-			{
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-			}
-		);
+		const res = await api.patch('/quiz/update', {
+			surveyJson: quizData.surveyJson,
+			id: quizData.id,
+		});
 
 		return res.data;
 	} catch (error) {
@@ -106,48 +88,9 @@ export const deleteQuiz = createAsyncThunk<
 >('quiz/delete', async (_, { getState, rejectWithValue }) => {
 	const state = getState() as RootState;
 	const quizData = state.quiz;
-	const accessToken = state.user.accessToken;
-	console.log(quizData.id);
 
 	try {
-		const res = await api.delete('/quiz/delete', {
-			data: { id: quizData.id },
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-			},
-		});
-
-		return res.data;
-	} catch (error) {
-		const err = error as { response?: { data: ErrorTypeAuth } };
-		console.error('Ошибка при удалении теста', err.response?.data);
-
-		return rejectWithValue(
-			err.response?.data || {
-				message: 'Ошибка при удалении теста',
-				statusCode: 500,
-			}
-		);
-	}
-});
-
-export const getQuizById = createAsyncThunk<
-	void, // что возвращает при успехе
-	{ id: IQuiz['id'] }, // аргумент
-	{ rejectValue: ErrorTypeAuth } // если будет ошибка
->('quiz/delete', async (_, { getState, rejectWithValue }) => {
-	const state = getState() as RootState;
-	const quizData = state.quiz;
-	const accessToken = state.user.accessToken;
-	console.log(quizData.id);
-
-	try {
-		const res = await api.delete('/quiz/delete', {
-			data: { id: quizData.id },
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-			},
-		});
+		const res = await api.delete('/quiz/delete', { data: { id: quizData.id } });
 
 		return res.data;
 	} catch (error) {

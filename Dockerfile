@@ -12,7 +12,7 @@ RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 # Копируем остальной код
 COPY . .
 
-# Vite читает переменные VITE_* на этапе билд
+# Vite читает переменные VITEls_* на этапе билд
 ARG VITE_API_BASE=/course_api
 ENV VITE_API_BASE=$VITE_API_BASE
 

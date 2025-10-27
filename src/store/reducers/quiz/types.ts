@@ -1,13 +1,13 @@
-import type { IQuiz } from '../../../models/IQuiz';
-import type { ISection } from '../../../models/course/ISection';
+import type { IQuiz } from "../../../models/quiz/IQuiz";
+
 
 export interface QuizState extends IQuiz {
 	quizzes: IQuiz[];
-	sectionId: ISection['id'] | null;
 	isSaving: boolean;
 	saveError: string | null;
 	isLoading: boolean;
 	isUpdate: boolean;
+	lastCreatedId: IQuiz['id'];
 }
 
 //TODO: начать использовать

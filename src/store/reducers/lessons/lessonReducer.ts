@@ -1,9 +1,11 @@
-//TODO: доделать редьюсер урока
-
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { getAllLessons, getHTML, getLessonPDFById, } from './lessonsThunks';
+import {
+	getAllLessons,
+	createLesson,
+	//TODO fetchLessonContent - добавиь addCase нужные
+} from './lessonsThunks';
 import type { LessonState } from './types';
-import type { ILesson, LessonPage } from '../../../models/course/ILesson';
+import type { LessonPage } from '../../../models/course/ILesson';
 
 const initialState: LessonState = {
 	id: 0,
@@ -11,6 +13,7 @@ const initialState: LessonState = {
 	pages: { startWith: 1, end: 1 },
 	lessons: [],
 	testId: null,
+	courseId: 0,
 	isSaving: false,
 	isLoading: false,
 	saveError: '',
@@ -29,33 +32,19 @@ const lessonSlice = createSlice({
 	name: 'lesson',
 	initialState,
 	reducers: {
-		updateLesson: (
-			state,
-			action: PayloadAction<{
-				sectionId: number;
-				data: Partial<ILesson>;
-			}>
-		) => {
-			const { sectionId, data } = action.payload;
-
-			console.log('updateLesson', state.lessons);
-
-			const section = state.lessons.find(l => l.sectionId === sectionId);
-			if (section) {
-				Object.assign(section, data);
-			}
-			console.log('updateLesson', section);
+		clearLessons() {
+			return initialState; // быстрый полный сброс
 		},
 
 		setLessonField: (
 			state,
 			action: PayloadAction<{
-				key: keyof LessonState; // ключ состояния
+				key: keyof LessonState;
 				value: string | number | Partial<LessonPage>;
 			}>
 		) => {
 			const { key, value } = action.payload;
-			console.log('setLessonField', key, value);
+
 			if (key === 'pages' && isLessonPagePartial(value)) {
 				// обеспечим начальное значение, если pages ещё пустой
 				const current = state.pages ?? { startWith: 1, end: 1 };
@@ -85,16 +74,18 @@ const lessonSlice = createSlice({
 
 	extraReducers: builder => {
 		builder
-			.addCase(getHTML.pending, state => {
+			.addCase(createLesson.pending, state => {
 				state.isSaving = true;
 				state.saveError = '';
 			})
-			.addCase(getHTML.fulfilled, (state, action) => {
-				state.html = action.payload.html;
+			.addCase(createLesson.fulfilled, (state, action) => {
+				state.lessons.push(action.payload);
+				state.isSaving = false;
+
+				// setLessonField(action.payload);
 				state.saveError = '';
 			})
-			.addCase(getHTML.rejected, (state, action) => {
-				// state.html = action.payload;
+			.addCase(createLesson.rejected, (state, action) => {
 				if (action.payload?.message) {
 					state.saveError = action.payload.message;
 				} else {
@@ -102,23 +93,9 @@ const lessonSlice = createSlice({
 				}
 			})
 
-			.addCase(getLessonPDFById.pending, state => {
-				state.isLoading = true;
-				state.saveError = '';
-			})
-			.addCase(getLessonPDFById.fulfilled, (state, action) => {
-				state.isLoading = false;
-				// если раньше был url — освободим
-				if (state.html) URL.revokeObjectURL(state.html);
-				state.html = action.payload; // blob-url
-			})
-			.addCase(getLessonPDFById.rejected, (state, action: any) => {
-				state.isLoading = false;
-				state.saveError = action.payload?.message ?? 'Ошибка загрузки урока';
-			})
-
 			.addCase(getAllLessons.fulfilled, (state, action) => {
-				state.lessons = action.payload; // храним список с contentUrl
+				state.lessons = action.payload;
+
 				state.isLoading = false;
 				state.saveError = '';
 			})
@@ -128,11 +105,11 @@ const lessonSlice = createSlice({
 			})
 			.addCase(getAllLessons.rejected, (state, action) => {
 				state.isLoading = false;
-				state.saveError = (action.payload as any)?.message ?? 'Ошибка';
-			})
+				state.saveError = action.payload?.message ?? 'Ошибка';
+			});
 	},
 });
 
-export const { updateLesson, setLessonField } = lessonSlice.actions;
+export const { clearLessons, setLessonField } = lessonSlice.actions;
 
 export default lessonSlice.reducer;

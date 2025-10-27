@@ -5,7 +5,7 @@ import type { QuizState } from './types';
 import { deleteQuiz, getAllQuizzes, saveQuiz, updateQuiz } from './quizThunks';
 import type { ErrorTypeAuth } from '../errorTypes';
 import type { Page } from '../../../models/quiz/IPage';
-import type { IQuiz } from '../../../models/IQuiz';
+import type { IQuiz } from '../../../models/quiz/IQuiz';
 
 const initialState: QuizState = {
 	id: null,
@@ -33,8 +33,8 @@ const initialState: QuizState = {
 			},
 		],
 	},
+	lastCreatedId: null,
 	quizzes: [],
-	sectionId: null,
 	isSaving: false,
 	saveError: null,
 	isLoading: false,
@@ -45,6 +45,14 @@ const quizSlice = createSlice({
 	name: 'quiz',
 	initialState,
 	reducers: {
+		clearQuizzes() {
+			return initialState; // быстрый полный сброс
+		},
+
+		clearLastCreatedQuiz(state) {
+			state.lastCreatedId = null;
+		},
+
 		setTitle(state, action: PayloadAction<string>) {
 			state.surveyJson.title = action.payload;
 		},
@@ -167,8 +175,6 @@ const quizSlice = createSlice({
 		},
 
 		generateSurveyJson(state) {
-			console.log(state.id);
-
 			state.surveyJson = {
 				...state.surveyJson,
 			};
@@ -192,7 +198,11 @@ const quizSlice = createSlice({
 				state.isSaving = true;
 				state.saveError = null;
 			})
-			.addCase(saveQuiz.fulfilled, state => {
+			.addCase(saveQuiz.fulfilled, (state, action) => {
+				state.lastCreatedId = action.payload.id;
+				// if (!state.quizzes.some(x => x.id === action.payload.id)) {
+				// 	state.quizzes.unshift(q);
+				// }
 				state.isSaving = false;
 				state.saveError = null;
 			})
@@ -214,12 +224,10 @@ const quizSlice = createSlice({
 			.addCase(getAllQuizzes.fulfilled, (state, action) => {
 				state.isLoading = false;
 				// state.surveyJson = action.payload;
-				console.log(action.payload);
-				console.log('state.surveyJson', state.surveyJson);
+
 				state.saveError = null;
 
 				state.quizzes = action.payload;
-				console.log('state.quizzes', state.quizzes);
 			})
 			.addCase(getAllQuizzes.rejected, (state, action) => {
 				state.isLoading = false;
@@ -268,6 +276,7 @@ const quizSlice = createSlice({
 });
 
 export const {
+	clearQuizzes,
 	generateSurveyJson,
 	setTitle,
 	removePage,
@@ -278,6 +287,7 @@ export const {
 	addPageWithDefaultQuestion,
 	setQuizForEdit,
 	resetState,
+	clearLastCreatedQuiz,
 } = quizSlice.actions;
 
 export default quizSlice.reducer;

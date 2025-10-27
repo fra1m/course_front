@@ -1,16 +1,18 @@
 import type React from 'react';
-import { LoginPage } from '../pages/LoginPage';
-import { HomePage } from '../pages/HomePage';
-import { RegisterPage } from '../pages/RegisterPage';
-import { QuizBuilder } from '../components/QuizBuilder';
-import { QuizzesPage } from '../pages/QuizzesPage';
-import { CoursesPage } from '../pages/CoursesPage';
-import { LessonsForm } from '../components/LessonsForm';
+import { LoginPage } from '../pages/Loggin/LoginPage';
+import { HomePage } from '../pages/Home/HomePage';
+import { QuizBuilder } from '../pages/Quiz/QuizBuilder';
+import { QuizzesPage } from '../pages/Quiz/QuizzesPage';
+import { CoursesPage } from '../pages/Course/CoursesPage';
+import LessonsForm from '../components/Forms/LessonsForm';
 import { Role } from '../store/reducers/user/types';
-import { CourseBuilder } from '../pages/CourseBuilder';
-import { QuizPage } from '../pages/QuizePage';
-import { LessonBuilder } from '../pages/LessonBuilder';
-import { LessonsPage } from '../pages/LessonsPage';
+import { CourseBuilder } from '../pages/Course/CourseBuilder';
+import { QuizPage } from '../pages/Quiz/QuizePage';
+import { LessonBuilder } from '../pages/Lesson/LessonBuilder';
+import UsersPage from '../pages/User/UsersPage';
+import ProfilePage from '../pages/Profile/ProfilePage';
+import SpecializationPage from '../pages/Specialization/SpecializationPage';
+import { RegisterPageForAdmin } from '../pages/User/RegisterPageForAdmin';
 
 export interface IRoute {
 	path: string;
@@ -24,7 +26,6 @@ export interface IRoute {
 export const RouteNames = {
 	HOME: '/',
 	REGISTER: '/register',
-	PROFILE: '/profile',
 	LOGIN: '/login',
 
 	QUIZ_BUILDER: '/quiz-builder',
@@ -39,6 +40,11 @@ export const RouteNames = {
 	LESSONS: '/lessons',
 	LESSON_VIEW: '/lessons/:id',
 
+	CREATE_USER: '/user-create',
+	GET_ALL_USERS: '/users',
+	PROFILE: '/profile',
+
+	SPECIALIZATION: '/specializations',
 	// LOGOUT: '/logout',
 } as const;
 
@@ -47,7 +53,7 @@ export const publickRoutes: IRoute[] = [
 	{
 		path: RouteNames.REGISTER,
 		exact: true,
-		component: RegisterPage,
+		component: RegisterPageForAdmin,
 		label: 'Регистрация',
 	},
 ];
@@ -73,7 +79,7 @@ export const privateRoutes: IRoute[] = [
 		path: RouteNames.QUIZZES,
 		exact: true,
 		component: QuizzesPage,
-		roles: [Role.STUDENT, Role.TEACHER, Role.ADMIN],
+		roles: [Role.TEACHER, Role.ADMIN],
 		label: 'Ваши тесты',
 	},
 	{
@@ -87,7 +93,7 @@ export const privateRoutes: IRoute[] = [
 		path: RouteNames.COURSES,
 		exact: true,
 		component: CoursesPage,
-		roles: [Role.STUDENT, Role.ADMIN],
+		roles: [Role.STUDENT, Role.TEACHER, Role.ADMIN],
 		label: 'Курсы',
 	},
 	{
@@ -113,16 +119,32 @@ export const privateRoutes: IRoute[] = [
 		label: 'Конструктор уроков',
 	},
 	{
-		path: RouteNames.LESSONS,
-		exact: true,
-		component: LessonsPage,
-		roles: [Role.TEACHER, Role.ADMIN],
-		label: 'Ваши уроки',
-	},
-	{
 		path: RouteNames.LESSON_VIEW,
 		exact: true,
 		component: LessonsForm,
 		roles: [Role.STUDENT, Role.TEACHER, Role.ADMIN],
+	},
+
+	{
+		path: RouteNames.PROFILE,
+		exact: true,
+		component: ProfilePage,
+		roles: [Role.USER, Role.STUDENT, Role.TEACHER, Role.ADMIN],
+		label: 'Профиль',
+	},
+	{
+		path: RouteNames.GET_ALL_USERS,
+		exact: true,
+		component: UsersPage,
+		roles: [Role.ADMIN],
+		label: 'Пользователи',
+	},
+
+	{
+		path: RouteNames.SPECIALIZATION,
+		exact: true,
+		component: SpecializationPage,
+		roles: [Role.ADMIN], // только админ
+		label: 'Специализации',
 	},
 ];
